@@ -1,4 +1,4 @@
-public class AccountFilter {
+public with sharing class AccountFilter {
 
   public List<Account> filterByChangeDocumentNumber(
     List<Account> newAccounts,
@@ -16,6 +16,14 @@ public class AccountFilter {
         filteredAccounts.add(account);
         continue;
       }
+
+      if (account.DocumentNumber__c == oldAccounts.get(account.Id).DocumentNumber__c) {
+        continue;
+      }
+
+      filteredAccounts.add(account);
     }
+
+    return filteredAccounts;
   }
 }

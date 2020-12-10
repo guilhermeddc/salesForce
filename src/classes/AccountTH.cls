@@ -4,6 +4,10 @@ public virtual with sharing class AccountTH extends TriggerHandler {
 
   Map<Id,Account> oldAccount;
 
+  AccountFilter filter;
+
+  AccountValidator validator;
+
   public AccountTH() {
     this((List<Account>) Trigger.new, (Map<Id,Account>) Trigger.oldMap);
   }
@@ -11,30 +15,28 @@ public virtual with sharing class AccountTH extends TriggerHandler {
   public AccountTH(List<Account> newAccount, Map<Id,Account> oldAccount) {
     this.newAccount = newAccount;
     this.oldAccount = oldAccount;
+
+    this.filter = new AccountFilter();
+    this.validator = new AccountValidator();
   }
 
   override
   public void beforeInsert() {
-
+    validateDocumentNumber();
   }
 
   override 
   public void beforeUpdate() {
-     
+    validateDocumentNumber();
   }
 
   virtual
-  override
-  public void afterInsert() {
-    System.debug('Trigger de Conta adicionada' + Trigger.operationType);
-    System.debug(JSON.serialize(newAccount));
-  }
+  public void validateDocumentNumber() {
+    List<Account> filteredAccounts = this.filter.filterByChangeDocumentNumber(
+      newAccount, 
+      oldAccount
+    );
 
-  virtual
-  override
-  public void afterUpdate() {
-    System.debug('Trigger de Conta adicionada' + Trigger.operationType);
-    System.debug(JSON.serialize(newAccount));
-    System.debug(JSON.serialize(oldAccount));
+    this.validator.validateDocumentNumber(filteredAccounts);
   }
 }
